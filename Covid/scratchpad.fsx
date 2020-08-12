@@ -2,8 +2,8 @@
 
 open FSharp.Data
 open FSharp.Core
-open System
 open System.IO
+open System
 
 fsi.AddPrinter<DateTime>(fun d -> d.ToShortDateString())
 
@@ -37,8 +37,7 @@ let allData =
 let confirmedByContryDaily =
     seq {
         let byContry =
-            allData
-            |> Seq.groupBy (fun x -> x.Country_Region)
+            allData |> Seq.groupBy (fun x -> x.Country_Region)
 
         for country, rows in byContry do
             let countryData =
@@ -48,9 +47,14 @@ let confirmedByContryDaily =
                         |> Seq.groupBy (fun row -> row.Last_Update.Date)
 
                     for date, rows in byDate do
-                        date,
-                        rows
-                        |> Seq.sumBy (fun row -> row.Confirmed)
+                        date, rows |> Seq.sumBy (fun row -> row.Confirmed)
                 }
+
             country, countryData
     }
+
+
+open XPlot.Plotly
+
+let county, data = confirmedByContryDaily |> Seq.head
+data|> Chart.Line|>Chart.Show
