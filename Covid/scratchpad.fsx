@@ -10,15 +10,16 @@ fsi.AddPrinter<DateTime>(fun d -> d.ToShortDateString())
 [<Literal>]
 let SampleDataFile =
     __SOURCE_DIRECTORY__
-    + "./dataSource/01-22-2020.csv"
+    + "./dataSource/03-22-2020.csv"
 
-type Covid = CsvProvider<SampleDataFile>
+type Covid = CsvProvider<SampleDataFile, PreferOptionals=true>
 
 Covid.GetSample().Rows
 
 let files =
     Directory.GetFiles(__SOURCE_DIRECTORY__ + "./dataSource/", "*.csv")
     |> Seq.map Path.GetFullPath
+    |> Seq.take 61
 
 let allData' =
     files
@@ -33,4 +34,23 @@ let allData =
             yield! data.Rows
     }
 
+let confirmedByContryDaily =
+    seq {
+        let byContry =
+            allData
+            |> Seq.groupBy (fun x -> x.Country_Region)
 
+        for country, rows in byContry do
+            let countryData =
+                seq {
+                    let byDate =
+                        rows
+                        |> Seq.groupBy (fun row -> row.Last_Update.Date)
+
+                    for date, rows in byDate do
+                        date,
+                        rows
+                        |> Seq.sumBy (fun row -> row.Confirmed)
+                }
+            country, countryData
+    }
