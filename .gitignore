@@ -2,3 +2,5 @@
 Covid/.ionide
 Covid/paket-files
 Covid/.idea
+Covid/src/server/bin
+Covid/src/server/obj
