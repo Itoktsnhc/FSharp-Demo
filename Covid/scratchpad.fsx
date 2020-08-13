@@ -1,5 +1,7 @@
 #load ".paket/load/netcoreapp3.1/main.group.fsx"
 
+open XPlot.Plotly
+
 open FSharp.Data
 open FSharp.Core
 open System.IO
@@ -12,14 +14,13 @@ let SampleDataFile =
     __SOURCE_DIRECTORY__
     + "./dataSource/03-22-2020.csv"
 
-type Covid = CsvProvider<SampleDataFile, PreferOptionals=true>
+type Covid = CsvProvider<SampleDataFile, PreferOptionals=true, IgnoreErrors=true>
 
 Covid.GetSample().Rows
 
 let files =
     Directory.GetFiles(__SOURCE_DIRECTORY__ + "./dataSource/", "*.csv")
     |> Seq.map Path.GetFullPath
-    |> Seq.take 61
 
 let allData' =
     files
@@ -53,8 +54,22 @@ let confirmedByContryDaily =
             country, countryData
     }
 
+let topTen =
+    confirmedByContryDaily
+    |> Seq.sortByDescending (fun (country, dates) ->
+        let lastDate, confirmed = dates |> Seq.last
+        confirmed)
+    |> Seq.take 30
 
-open XPlot.Plotly
 
-let county, data = confirmedByContryDaily |> Seq.head
-data|> Chart.Line|>Chart.Show
+
+let makeScatter (country, values) =
+    let dates, numbers = values |> Seq.toArray |> Array.unzip
+    let trace = Scatter(x = dates, y = numbers) :> Trace
+    trace.name <- country
+    trace
+
+topTen
+|> Seq.map makeScatter
+|> Chart.Plot
+|> Chart.Show
