@@ -4,3 +4,8 @@ Covid/paket-files
 Covid/.idea
 Covid/src/server/bin
 Covid/src/server/obj
+LoopTranslator/LoopTranslator/.idea
+LoopTranslator/LoopTranslator/bin
+LoopTranslator/LoopTranslator/obj
+LoopTranslator/LoopTranslator/.vs
+LoopTranslator/LoopTranslator/config.txt
